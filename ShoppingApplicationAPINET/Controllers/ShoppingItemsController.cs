@@ -6,6 +6,8 @@ using Microsoft.AspNetCore.Mvc;
 using ShoppingApplicationAPINET.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
+using ShoppingApplicationAPINET.Types;
+using System.Security.Claims;
 
 namespace ShoppingApplicationAPINET.Controllers
 {
@@ -18,16 +20,30 @@ namespace ShoppingApplicationAPINET.Controllers
             _context = context;
         }
 
-        [HttpPost]
+        [HttpGet]
         [Route("/list/getitems")]
-        public async Task<IActionResult> GetShoppingListItems(
-            [FromBody] int user_ID
-        )
+        public async Task<IActionResult> GetShoppingListItems()
         {
             try
             {
+                Claim? userClaim = HttpContext.User.Claims?.SingleOrDefault(p => p.Type == "User_ID");
+                if (userClaim == null)
+                {
+                    throw new Exception("No Authentication Found");
+                }
+                int user_ID = int.Parse(userClaim.Value);
                 List<ShoppingItem> shoppingItems = await _context.ShoppingItems.Where((i) => i.User_ID == user_ID).ToListAsync();
-                return Ok(shoppingItems);
+                List<ShoppingItemClient> clientShoppingItems = new List<ShoppingItemClient>();
+                foreach (ShoppingItem item in shoppingItems)
+                {
+                    ShoppingItemClient clientItem = new ShoppingItemClient();
+                    clientItem.id = item.Shopping_Item_ID;
+                    clientItem.name = item.Item_Name;
+                    clientItem.purchased = item.purchased;
+                    clientItem.quantity = item.Quantity;
+                    clientShoppingItems.Add(clientItem);
+                }
+                return Ok(clientShoppingItems);
             } catch (Exception ex)
             {
                 return Problem(ex.ToString());
@@ -37,11 +53,22 @@ namespace ShoppingApplicationAPINET.Controllers
 
         [HttpPost]
         [Route("/list/create")]
-        public async Task<IActionResult> CreateShoppingListItem(ShoppingItem shoppingItem)
+        public async Task<IActionResult> CreateShoppingListItem([FromBody] CreateShoppingItemRequestBody body)
         {
             try
             {
+                Claim? userClaim = HttpContext.User.Claims?.SingleOrDefault(p => p.Type == "User_ID");
+                if (userClaim == null)
+                {
+                    throw new Exception("No Authentication Found");
+                }
+                int user_ID = int.Parse(userClaim.Value);
+                ShoppingItem shoppingItem = new ShoppingItem();
+                shoppingItem.Item_Name = body.name;
+                shoppingItem.Quantity = body.quantity;
+                shoppingItem.User_ID = user_ID;
                 await _context.AddAsync<ShoppingItem>(shoppingItem);
+                await _context.SaveChangesAsync();
                 return Ok();
             }
             catch (Exception ex)
@@ -52,11 +79,11 @@ namespace ShoppingApplicationAPINET.Controllers
 
         [HttpPost]
         [Route("/list/purchased")]
-        public async Task<IActionResult> MarkShoppingListItemPurchased(int shoppingItemID)
+        public async Task<IActionResult> MarkShoppingListItemPurchased([FromBody] PurchasedItemRequestBody body)
         {
             try
             {
-                ShoppingItem? shoppingItem = await _context.ShoppingItems.FindAsync(shoppingItemID);
+                ShoppingItem? shoppingItem = await _context.ShoppingItems.FindAsync(body.item_id);
                 if (shoppingItem != null)
                 {
                     shoppingItem.purchased = true;
@@ -73,11 +100,17 @@ namespace ShoppingApplicationAPINET.Controllers
 
         [HttpPost]
         [Route("/list/update")]
-        public async Task<IActionResult> UpdateShoppingListItem (ShoppingItem shoppingItem)
+        public async Task<IActionResult> UpdateShoppingListItem ([FromBody] ItemUpdateRequestBody body)
         {
             try
             {
-                _context.ShoppingItems.Update(shoppingItem);
+                ShoppingItem? shoppingItem = await _context.ShoppingItems.FindAsync(body.item_id);
+                if (shoppingItem == null)
+                {
+                    throw new Exception("Couldn't find shopping item");
+                }
+                shoppingItem.Quantity = body.quantity;
+                shoppingItem.Item_Name = body.name;
                 await _context.SaveChangesAsync();
                 return Ok();
             }
@@ -88,12 +121,12 @@ namespace ShoppingApplicationAPINET.Controllers
         }
 
         [HttpPost]
-        [Route("/list/delete")]
-        public async Task<IActionResult> DeleteShoppingListItem(int shoppingItemID)
+        [Route("/list/remove")]
+        public async Task<IActionResult> DeleteShoppingListItem([FromBody] DeleteItemRequestBody body)
         {
             try
             {
-                ShoppingItem? shoppingItem = await _context.ShoppingItems.FindAsync(shoppingItemID);
+                ShoppingItem? shoppingItem = await _context.ShoppingItems.FindAsync(body.item_id);
                 if (shoppingItem != null)
                 {
                     _context.Remove(shoppingItem);

@@ -5,7 +5,8 @@ namespace ShoppingApplicationAPINET.Models
 {
 	public class ShoppingContext : DbContext
 	{
-		public ShoppingContext(DbContextOptions<ShoppingContext> options) : base(options) { }
+
+        public ShoppingContext(DbContextOptions<ShoppingContext> options) : base(options) {}
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

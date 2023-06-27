@@ -1,8 +1,11 @@
 ﻿using System;
+using System.ComponentModel.DataAnnotations;
+
 namespace ShoppingApplicationAPINET.Models
 {
     public class User
     {
+        [Key]
         public int User_ID { get; set; }
 
         public string User_Name { get; set; } = string.Empty;

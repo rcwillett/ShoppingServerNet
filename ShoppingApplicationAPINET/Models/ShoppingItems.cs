@@ -1,10 +1,12 @@
 ﻿using System;
+using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
 
 namespace ShoppingApplicationAPINET.Models
 {
 	public class ShoppingItem
 	{
+		[Key]
 		public int Shopping_Item_ID { get; set; }
 
 		public int Quantity { get; set; }
