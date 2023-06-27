@@ -6,11 +6,34 @@ using Microsoft.AspNetCore.Mvc;
 using ShoppingApplicationAPINET.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
-using ShoppingApplicationAPINET.Types;
 using System.Security.Claims;
 
 namespace ShoppingApplicationAPINET.Controllers
 {
+    public class CreateShoppingItemRequestBody
+    {
+        public string name { get; set; }
+        public int quantity { get; set; }
+    }
+
+    public class PurchasedItemRequestBody
+    {
+        public int item_id { get; set; }
+    }
+
+    public class ItemUpdateRequestBody
+    {
+        public int item_id { get; set; }
+        public string name { get; set; }
+        public int quantity { get; set; }
+        public bool purchased { get; set; }
+    }
+
+    public class DeleteItemRequestBody
+    {
+        public int item_id { get; set; }
+    }
+
     public class ShoppingItemsController : Controller
     {
         private readonly ShoppingContext _context;

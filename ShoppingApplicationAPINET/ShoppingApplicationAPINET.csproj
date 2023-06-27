@@ -17,11 +17,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Remove="Types\" />
     <None Remove="Models\" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Types\" />
     <Folder Include="Models\" />
   </ItemGroup>
 </Project>

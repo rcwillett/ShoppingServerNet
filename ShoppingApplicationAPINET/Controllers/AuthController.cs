@@ -11,7 +11,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using Microsoft.Extensions.Configuration;
-using ShoppingApplicationAPINET.Types;
 using Microsoft.AspNetCore.Cors;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication;
@@ -19,6 +18,18 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 
 namespace ShoppingApplicationAPINET.Controllers
 {
+    public class LoginRequestBody
+    {
+        public string username { get; set; }
+        public string password { get; set; }
+    }
+
+    public class RegisterRequestBody
+    {
+        public string username { get; set; }
+        public string password { get; set; }
+    }
+
     public class AuthController : Controller
     {
         private IConfiguration _configuration;
