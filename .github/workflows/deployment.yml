@@ -27,7 +27,7 @@ jobs:
         with:
           json:
             '{"ConnectionStrings": {"MySQLConnection": "${{ secrets.DB_CONNECTION_STRING }}"},"AllowedHosts": [ "${{ vars.CLIENT_HOST }}" ],"Logging": {"LogLevel": {"Default": "Information","Microsoft.AspNetCore": "Warning"}}}'
-          filename: '/ShoppingApplicationAPINET/appsettings.json'
+          filename: './appsettings.json'
       - name: Azure Login
         uses: Azure/login@v1.4.6
         with:
