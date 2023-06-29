@@ -1,0 +1,56 @@
+name: Deploy
+on:
+  workflow_dispatch:
+    inputs:
+      logLevel:
+        description: 'Log level'
+        required: true
+        default: 'warning'
+        type: choice
+        options:
+        - info
+        - warning
+        - debug
+  push:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    name: Build Image
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: json-to-file
+      # You may pin to the exact commit or the version.
+      # uses: devops-actions/json-to-file@47995a2bac3a117e515a05097e8e7916d49d9f25
+        uses: devops-actions/json-to-file@v1.0.3
+        with:
+          json:
+            '{"ConnectionStrings": {"MySQLConnection": "${{ secrets.DB_CONNECTION_STRING }}"},"AllowedHosts": [ "${{ vars.CLIENT_HOST }}" ],"Logging": {"LogLevel": {"Default": "Information","Microsoft.AspNetCore": "Warning"}}}'
+          filename: './ShoppingApplicationAPINET/appsettings.json'
+      - name: Azure Login
+        uses: Azure/login@v1.4.6
+        with:
+          # Paste output of `az ad sp create-for-rbac` as value of secret variable: AZURE_CREDENTIALS
+          creds:
+            ${{ secrets.AZURE_CREDENTIALS }}
+      - name: Docker Login
+        # You may pin to the exact commit or the version.
+        # uses: docker/login-action@465a07811f14bebb1938fbed4728c6a1ff8901fc
+        uses: docker/login-action@v2.2.0
+        with:
+          # Server address of Docker registry. If not set then will default to Docker Hub
+          registry: ${{ vars.DOCKER_REGISTRY }}
+          # Username used to log against the Docker registry
+          username: ${{ vars.DOCKER_USER }}
+          # Password or personal access token used to log against the Docker registry
+          password: ${{ secrets.DOCKER_PASSWORD }}
+      - name: Build and push Docker images
+          # You may pin to the exact commit or the version.
+          # uses: docker/build-push-action@2eb1c1961a95fc15694676618e422e8ba1d63825
+        uses: docker/build-push-action@v4.1.1
+        with:
+          # Push is a shorthand for --output=type=registry
+          push: true
+          # List of tags
+          tags: "${{ vars.DOCKER_REGISTRY }}/server:latest"
