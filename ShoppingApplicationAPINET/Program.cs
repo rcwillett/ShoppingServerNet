@@ -63,7 +63,12 @@ app.UseCors(CORSPolicy);
 
 app.UseAuthorization();
 
-app.UseCookiePolicy(new CookiePolicyOptions { Secure = CookieSecurePolicy.None, MinimumSameSitePolicy = SameSiteMode.Strict });
+app.UseCookiePolicy(
+    new CookiePolicyOptions {
+        Secure = app.Environment.IsDevelopment() ? CookieSecurePolicy.None : CookieSecurePolicy.Always,
+        MinimumSameSitePolicy = app.Environment.IsDevelopment() ? SameSiteMode.Strict : SameSiteMode.None,
+    }
+);;
 
 app.MapControllers();
 
