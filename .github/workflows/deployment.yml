@@ -28,12 +28,6 @@ jobs:
           json:
             '{"ConnectionStrings": {"MySQLConnection": "${{ secrets.DB_CONNECTION_STRING }}"},"AllowedHosts": [ "${{ vars.CLIENT_HOST }}" ],"Logging": {"LogLevel": {"Default": "Information","Microsoft.AspNetCore": "Warning"}}}'
           filename: './appsettings.json'
-      - name: Azure Login
-        uses: Azure/login@v1.4.6
-        with:
-          # Paste output of `az ad sp create-for-rbac` as value of secret variable: AZURE_CREDENTIALS
-          creds:
-            ${{ secrets.AZURE_CREDENTIALS }}
       - name: Docker Login
         # You may pin to the exact commit or the version.
         # uses: docker/login-action@465a07811f14bebb1938fbed4728c6a1ff8901fc
